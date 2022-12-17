@@ -13,7 +13,7 @@ class Valve{
         string name;
         int flow_rate;
         vector<string> neigh_names;
-        vector<Valve*> neighbors;
+        vector<shared_ptr<Valve>> neighbors;
         bool opened;
         int distance;
 
@@ -44,10 +44,10 @@ class Valve{
         }
 };
 
-long long find_max_released_2(vector<Valve*> to_open, vector<Valve*> valves, Valve *current, int time_left, int current_flow, long long released_presure);
-void reset_graph(vector<Valve*> valves);
-int find_shortest_path(Valve *current, Valve *next);
-int split_valves(vector<Valve*> to_open, vector<Valve *> valves, Valve * start);
+long long find_max_released_2(vector<shared_ptr<Valve>> to_open, vector<shared_ptr<Valve>> valves, shared_ptr<Valve>current, int time_left, int current_flow, long long released_presure);
+void reset_graph(vector<shared_ptr<Valve>> valves);
+int find_shortest_path(shared_ptr<Valve>current, shared_ptr<Valve>next);
+int split_valves(vector<shared_ptr<Valve>> to_open, vector<shared_ptr<Valve>> valves, shared_ptr<Valve> start);
 
 int main(int argc , char** argv) {
     if(argc < 2){
@@ -57,16 +57,16 @@ int main(int argc , char** argv) {
     input_file.open(argv[1]);
     std::string line;
 
-    Valve *start;
-    vector<Valve*> valves = {};
-    vector<Valve*> to_open = {};
+    shared_ptr<Valve>start;
+    vector<shared_ptr<Valve>> valves = {};
+    vector<shared_ptr<Valve>> to_open = {};
 
     while (std::getline (input_file, line)){
         string name = line.substr(0, 2);
         string::size_type sz;
         int curr_idx = 0;
         int flow_rate = stoi(line.substr(3), &sz);
-        Valve *v = new Valve(name, flow_rate);
+        shared_ptr<Valve>v = make_shared<Valve>(name, flow_rate);
         valves.push_back(v);
         curr_idx += 3 + sz + 1;
         vector<string> neigh_names = {};
@@ -104,7 +104,7 @@ int main(int argc , char** argv) {
 
 }
 
-int split_valves(vector<Valve*> to_open, vector<Valve *> valves, Valve * start){
+int split_valves(vector<shared_ptr<Valve>> to_open, vector<shared_ptr<Valve>> valves, shared_ptr<Valve> start){
     int max = 0;
     int mid_size = to_open.size()/2;
     unsigned int mask = 0xFFFFFFFF << (to_open.size());
@@ -114,8 +114,8 @@ int split_valves(vector<Valve*> to_open, vector<Valve *> valves, Valve * start){
             continue;
         if(i % 1000 ==0)
             cout << i << endl;
-        vector<Valve *> my_to_open;
-        vector<Valve *> elephant_to_open;
+        vector<shared_ptr<Valve>> my_to_open;
+        vector<shared_ptr<Valve>> elephant_to_open;
         for(int j=0; j<to_open.size(); j++){
             if(i & 1<<j)
                 my_to_open.push_back(to_open[j]);
@@ -130,9 +130,9 @@ int split_valves(vector<Valve*> to_open, vector<Valve *> valves, Valve * start){
     return max;
 }
 
-long long find_max_released_2(vector<Valve*> to_open, 
-                              vector<Valve*> valves, 
-                              Valve *current, 
+long long find_max_released_2(vector<shared_ptr<Valve>> to_open, 
+                              vector<shared_ptr<Valve>> valves, 
+                              shared_ptr<Valve>current, 
                               int time_left, 
                               int current_flow, 
                               long long released_presure){
@@ -147,7 +147,7 @@ long long find_max_released_2(vector<Valve*> to_open,
         reset_graph(valves);
         int dist = find_shortest_path(current, *next);
         if (time_left>dist+1){
-            vector<Valve*> new_to_open(to_open.size()-1);
+            vector<shared_ptr<Valve>> new_to_open(to_open.size()-1);
             remove_copy(to_open.begin(), to_open.end(), new_to_open.begin(), *next);
             int curr_released = find_max_released_2(new_to_open, 
                                                 valves, 
@@ -166,23 +166,23 @@ long long find_max_released_2(vector<Valve*> to_open,
     return curr_max;
 }
 
-void reset_graph(vector<Valve*> valves){
-    for (Valve *v : valves){
+void reset_graph(vector<shared_ptr<Valve>> valves){
+    for (shared_ptr<Valve>v : valves){
         v->distance = -1;
     }
 }
 
-int find_shortest_path(Valve *current, Valve *next){
-    list<Valve*> queue ={};
+int find_shortest_path(shared_ptr<Valve>current, shared_ptr<Valve>next){
+    list<shared_ptr<Valve>> queue ={};
     current->distance = 0;
     queue.push_back(current);
     while (queue.size()>0){
-        Valve *v = queue.front();
+        shared_ptr<Valve>v = queue.front();
         queue.pop_front();
         if (v->name == next->name){
             return v->distance;
         }
-        for (Valve *neigh : v->neighbors){
+        for (shared_ptr<Valve>neigh : v->neighbors){
             if (neigh->distance == -1){
                 neigh->distance = v->distance + 1;
                 queue.push_back(neigh);
