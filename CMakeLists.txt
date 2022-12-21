@@ -20,6 +20,7 @@ add_executable(day_16 day_16.cpp)
 add_executable(day_17 day_17.cpp)
 add_executable(day_18 day_18.cpp)
 add_executable(day_19 day_19.cpp)
+add_executable(day_20 day_20.cpp)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

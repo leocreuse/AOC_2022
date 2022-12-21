@@ -246,7 +246,7 @@ int main(int argc , char** argv) {
 
     std::vector<std::shared_ptr<Factory>> part_2_facts;
     auto part_2_res = 1;
-    for(int i=0; i<2; i++){
+    for(int i=0; i<3; i++){
         fact_prods[i]->print();
         part_2_facts.push_back(fact_prods[i]->optimize_prod(8));
         std::cout << "Factory " << i+1 << " can produce " << part_2_facts[i]->mineral_stock[Geode] << " geodes." << std::endl;
